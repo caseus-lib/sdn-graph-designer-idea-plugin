@@ -1,11 +1,10 @@
 <idea-plugin>
     <id>caseus.sdn-graph-designer-plugin</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <name>SDN Graph Designer</name>
+    <vendor email="someemail@gmail.com">Caseus lib</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    Some description and have minimum length ...........
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -19,6 +18,10 @@
     </extensions>
 
     <actions>
-        <!-- Add your actions here -->
+        <group id="GraphStructureViewAction">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+            <action id="GraphStructureViewAction.Execute" class="caseus.sdn.graph.GraphStructureViewAction"
+                    text="View Graph Structure" description="Build graph model structure"/>
+        </group>
     </actions>
 </idea-plugin>
