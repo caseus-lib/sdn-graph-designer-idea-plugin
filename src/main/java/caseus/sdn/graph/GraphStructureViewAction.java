@@ -8,6 +8,11 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+
 public class GraphStructureViewAction extends AnAction {
 
     @Override
@@ -22,7 +27,15 @@ public class GraphStructureViewAction extends AnAction {
         classGraph.getNodes().forEach(node -> System.out.println(node.getNodeClass() + " " + node.getName()));
         GraphBuilder graphBuilder = new GraphBuilderImpl();
         Graph graph = graphBuilder.build(classGraph);
-        System.out.println("end");
+        DotTranslator translator = new DotTranslatorImpl();
+        List<String> lines = translator.translate(graph);
+        try {
+            FileWriter fileWriter = new FileWriter(new File("E://graph.dot"));
+            fileWriter.write(String.join("\n", lines));
+            fileWriter.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
 }
