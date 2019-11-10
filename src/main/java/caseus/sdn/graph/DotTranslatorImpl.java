@@ -23,7 +23,7 @@ public class DotTranslatorImpl implements DotTranslator {
                                                                              ? "solid"
                                                                              : "dotted"))
                                       .collect(Collectors.toList());
-        return StreamEx.of("@startuml", "digraph graph {")
+        return StreamEx.of("@startuml", "digraph graphModel {")
                        .append(nodes)
                        .append(relations)
                        .append("}")
