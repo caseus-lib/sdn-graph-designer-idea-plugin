@@ -9,9 +9,14 @@ import java.util.Set;
 public class ClassGraph {
 
     private Set<GraphNode> nodes = new HashSet<>();
+    private Set<RelationshipEntityDefinition> relationshipEntities = new HashSet<>();
 
     public void add(GraphNode node) {
         nodes.add(node);
+    }
+
+    public void add(RelationshipEntityDefinition definition) {
+        relationshipEntities.add(definition);
     }
 
 }
