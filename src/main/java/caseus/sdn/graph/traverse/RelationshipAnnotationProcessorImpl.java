@@ -4,7 +4,8 @@ import com.intellij.codeInsight.AnnotationUtil;
 import com.intellij.psi.PsiAnnotation;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public class RelationshipAnnotationProcessorImpl implements RelationshipAnnotationProcessor {
 
@@ -17,16 +18,21 @@ public class RelationshipAnnotationProcessorImpl implements RelationshipAnnotati
     }
 
     private RelationshipDirection extractDirection(PsiAnnotation annotation) {
-        return extractValue(annotation, "direction").map(RelationshipDirection::valueOf)
-                                                    .orElse(RelationshipDirection.OUTGOING);
+        return RelationshipDirection.valueOf(extractValue(annotation, "direction"));
     }
 
     private String extractType(PsiAnnotation annotation) {
-        return extractValue(annotation, "type").orElse(StringUtils.EMPTY);
+        Supplier<String> type = () -> extractValue(annotation, "type");
+        Supplier<String> value = () -> extractValue(annotation, "value");
+        return Stream.of(type, value)
+                     .map(Supplier::get)
+                     .filter(StringUtils::isNotBlank)
+                     .findFirst()
+                     .orElse(StringUtils.EMPTY);
     }
 
-    private Optional<String> extractValue(PsiAnnotation annotation, String attribute) {
-        return Optional.ofNullable(AnnotationUtil.getStringAttributeValue(annotation, attribute));
+    private String extractValue(PsiAnnotation annotation, String attribute) {
+        return AnnotationUtil.getStringAttributeValue(annotation, attribute);
     }
 
 }

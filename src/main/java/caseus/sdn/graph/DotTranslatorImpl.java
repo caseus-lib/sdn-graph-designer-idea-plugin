@@ -11,11 +11,12 @@ public class DotTranslatorImpl implements DotTranslator {
     public List<String> translate(Graph graph) {
         List<String> nodes = graph.getNodes()
                                   .stream()
-                                  .map(node -> String.format("\"%s\" [label=%s]", node.getId(), node.getSimpleName()))
+                                  .map(node -> String.format("\"%s\" [label=\"%s\"]", node.getId(),
+                                                             node.getSimpleName()))
                                   .collect(Collectors.toList());
         List<String> relations = graph.getRelations()
                                       .stream()
-                                      .map(relation -> String.format("\"%s\" -> \"%s\" [label=%s, style=%s]",
+                                      .map(relation -> String.format("\"%s\" -> \"%s\" [label=\"%s\", style=%s]",
                                                                      relation.getNodeFrom(),
                                                                      relation.getNodeTo(),
                                                                      relation.getName(),

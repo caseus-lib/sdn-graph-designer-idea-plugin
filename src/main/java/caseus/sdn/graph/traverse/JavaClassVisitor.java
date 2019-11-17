@@ -13,7 +13,7 @@ public class JavaClassVisitor extends JavaRecursiveElementVisitor {
 
     @Override
     public void visitClass(PsiClass aClass) {
-        if (aClass.hasAnnotation("org.neo4j.ogm.annotation.RelationshipEntity"))
+//        if (aClass.hasAnnotation("org.neo4j.ogm.annotation.RelationshipEntity"))
         if (aClass.hasAnnotation("org.neo4j.ogm.annotation.NodeEntity")) {
             GraphNode graphNode = graphNodeBuilder.build(aClass);
             classGraph.add(graphNode);
