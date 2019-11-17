@@ -1,42 +1,53 @@
 package caseus.sdn.graph.traverse;
 
 import caseus.sdn.graph.RelationType;
-import com.intellij.psi.PsiAnnotation;
+import caseus.sdn.graph.traverse.annotation.AnnotationProcessor;
+import caseus.sdn.graph.traverse.annotation.RelationshipAnnotation;
+import caseus.sdn.graph.traverse.annotation.RelationshipAnnotationProcessor;
+import caseus.sdn.graph.utils.FieldUtils;
 import com.intellij.psi.PsiClassType;
 import com.intellij.psi.PsiField;
+import one.util.streamex.StreamEx;
+
+import static caseus.sdn.graph.traverse.annotation.AnnotationType.RELATIONSHIP;
+import static caseus.sdn.graph.utils.AnnotationUtils.getAnnotation;
 
 public class GraphRelationBuilderImpl implements GraphRelationBuilder {
 
-    private final RelationshipAnnotationProcessor annotationProcessor = new RelationshipAnnotationProcessorImpl();
+    private final AnnotationProcessor<RelationshipAnnotation> annotationProcessor = new RelationshipAnnotationProcessor();
 
     @Override
     public GraphRelation build(PsiField field) {
-        PsiAnnotation relationship = field.getAnnotation("org.neo4j.ogm.annotation.Relationship");
-        String type = annotationProcessor.process(relationship).getType();
+        RelationshipAnnotation relationshipAnnotation = annotationProcessor.process(getAnnotation(field, RELATIONSHIP));
         if (isCollection(((PsiClassType) field.getType()))) {
-            return buildCollections(field, type);
+            return buildCollections(field, relationshipAnnotation);
         }
-        return buildReference(field, type);
+        return buildReference(field, relationshipAnnotation);
     }
 
-    private GraphRelation buildReference(PsiField field, String name) {
+    private GraphRelation buildReference(PsiField field, RelationshipAnnotation relationshipAnnotation) {
         return GraphRelation.builder()
-                            .nodeClassTo(field.getType().getCanonicalText())
+                            .nodeClassTo(FieldUtils.defineClassName(field))
                             .relationType(RelationType.REFERENCE)
-                            .name(name)
+                            .name(relationshipAnnotation.getType())
+                            .direction(relationshipAnnotation.getDirection())
                             .build();
     }
 
-    private GraphRelation buildCollections(PsiField field, String name) {
+    private GraphRelation buildCollections(PsiField field, RelationshipAnnotation relationshipAnnotation) {
         return GraphRelation.builder()
                             .nodeClassTo(((PsiClassType) field.getType()).getParameters()[0].getCanonicalText())
                             .relationType(RelationType.COLLECTION)
-                            .name(name)
+                            .name(relationshipAnnotation.getType())
+                            .direction(relationshipAnnotation.getDirection())
                             .build();
     }
 
     private boolean isCollection(PsiClassType classType) {
-        return classType.getClassName().equals("List");
+        return StreamEx.of(classType.getSuperTypes())
+                       .select(PsiClassType.class)
+                       .map(PsiClassType::getClassName)
+                       .anyMatch(name -> name.equals("Collection"));
     }
 
 }

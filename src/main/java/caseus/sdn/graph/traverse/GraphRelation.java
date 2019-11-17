@@ -11,5 +11,6 @@ public class GraphRelation {
     private String name;
     private String nodeClassTo;
     private RelationType relationType;
+    private RelationshipDirection direction;
 
 }

@@ -5,6 +5,8 @@ import com.intellij.psi.PsiClass;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static caseus.sdn.graph.traverse.annotation.AnnotationType.RELATIONSHIP;
+
 public class GraphNodeBuilderImpl implements GraphNodeBuilder {
 
     private final GraphRelationBuilder graphRelationBuilder = new GraphRelationBuilderImpl();
@@ -15,7 +17,7 @@ public class GraphNodeBuilderImpl implements GraphNodeBuilder {
                         .nodeClass(psiClass.getQualifiedName())
                         .name(psiClass.getName())
                         .relations(Arrays.stream(psiClass.getAllFields())
-                                         .filter(field -> field.hasAnnotation("org.neo4j.ogm.annotation.Relationship"))
+                                         .filter(field -> field.hasAnnotation(RELATIONSHIP.getClassName()))
                                          .map(graphRelationBuilder::build)
                                          .collect(Collectors.toList()))
                         .build();

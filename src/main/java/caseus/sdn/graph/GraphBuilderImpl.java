@@ -3,6 +3,7 @@ package caseus.sdn.graph;
 import caseus.sdn.graph.traverse.ClassGraph;
 import caseus.sdn.graph.traverse.GraphNode;
 import caseus.sdn.graph.traverse.GraphRelation;
+import caseus.sdn.graph.traverse.RelationshipDirection;
 import lombok.Builder;
 import lombok.Value;
 
@@ -16,7 +17,7 @@ public class GraphBuilderImpl implements GraphBuilder {
     public Graph build(ClassGraph classGraph) {
         List<NodeRelationTuple> tuples = classGraph.getNodes()
                                                    .stream()
-                                                   .map(this::build)
+                                                   .map(graphNode -> build(classGraph, graphNode))
                                                    .collect(Collectors.toList());
         return Graph.builder()
                     .nodes(tuples.stream()
@@ -29,7 +30,7 @@ public class GraphBuilderImpl implements GraphBuilder {
                     .build();
     }
 
-    private NodeRelationTuple build(GraphNode graphNode) {
+    private NodeRelationTuple build(ClassGraph graph, GraphNode graphNode) {
         Node node = Node.builder()
                         .id(graphNode.getNodeClass())
                         .simpleName(graphNode.getName())
@@ -38,18 +39,26 @@ public class GraphBuilderImpl implements GraphBuilder {
                                 .node(node)
                                 .relations(graphNode.getRelations()
                                                     .stream()
-                                                    .map(relation -> build(graphNode, relation))
+                                                    .filter(relation -> relation.getDirection() == RelationshipDirection.OUTGOING)
+                                                    .map(relation -> build(graph, graphNode, relation))
                                                     .collect(Collectors.toList()))
                                 .build();
     }
 
-    private Relation build(GraphNode graphNode, GraphRelation graphRelation) {
+    private Relation build(ClassGraph graph, GraphNode graphNode, GraphRelation graphRelation) {
         return Relation.builder()
                        .name(graphRelation.getName())
                        .nodeFrom(graphNode.getNodeClass())
-                       .nodeTo(graphRelation.getNodeClassTo())
+                       .nodeTo(define(graph, graphRelation.getNodeClassTo()))
                        .relationType(graphRelation.getRelationType())
                        .build();
+    }
+
+    private String define(ClassGraph graph, String nodeClass) {
+        if (graph.getRelationshipEntities().containsKey(nodeClass)) {
+            return graph.getRelationshipEntities().get(nodeClass).getClassTo();
+        }
+        return nodeClass;
     }
 
     @Builder
